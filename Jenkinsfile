@@ -36,21 +36,23 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+             stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh '''
-                        sonar-scanner \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                            -Dsonar.projectName="${SONAR_PROJECT_NAME}" \
-                            -Dsonar.sources=. \
-                            -Dsonar.tests=test_e2e.py \
-                            -Dsonar.exclusions="__pycache__/**,.venv/**,venv/**,sample_certificates/**"
-                    '''
+                script {
+                    def scannerHome = tool 'sonarscanner'
+                    withSonarQubeEnv('sonarqube') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                -Dsonar.projectName="${SONAR_PROJECT_NAME}" \
+                                -Dsonar.sources=. \
+                                -Dsonar.tests=test_e2e.py \
+                                -Dsonar.exclusions="__pycache__/**,.venv/**,venv/**,sample_certificates/**"
+                        """
+                    }
                 }
             }
         }
-
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
