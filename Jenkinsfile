@@ -47,7 +47,7 @@ pipeline {
                                 -Dsonar.projectName="${SONAR_PROJECT_NAME}" \
                                 -Dsonar.sources=. \
                                 -Dsonar.tests=test_e2e.py \
-                                -Dsonar.exclusions="__pycache__/**,.venv/**,venv/**,sample_certificates/**"
+                                -Dsonar.exclusions="test_e2e.py,__pycache__/**,.venv/**,venv/**,sample_certificates/**"
                         """
                     }
                 }
