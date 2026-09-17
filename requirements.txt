@@ -4,4 +4,4 @@ cryptography>=42.0.0
 pydantic>=2.6.0
 Pillow>=10.0.0
 httpx2
-httpx2
+
