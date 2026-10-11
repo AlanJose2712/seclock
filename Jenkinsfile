@@ -120,50 +120,45 @@ pipeline {
             }
         }
 
-        stage('Commit and Push GitOps Changes') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'github',
-            usernameVariable: 'GIT_USER',
-            passwordVariable: 'GIT_TOKEN'
-        )]) {
-            sh '''
-                git config user.name "Jenkins"
-                git config user.email "jenkins@localhost"
+                stage('Commit and Push GitOps Changes') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github',
+                    usernameVariable: 'GIT_USER',
+                    passwordVariable: 'GIT_TOKEN'
+                )]) {
+                    sh '''
+                        git config user.name "Jenkins"
+                        git config user.email "jenkins@localhost"
 
-                git add k8s/deployment.yaml
+                        git add k8s/deployment.yaml
 
-                git commit \
-                    -m "Update Seclock image to ${GIT_COMMIT} [skip ci]" \
-                    || echo "No manifest changes to commit"
+                        git commit \
+                            -m "Update Seclock image to ${GIT_COMMIT} [skip ci]" \
+                            || echo "No manifest changes to commit"
 
-                git pull --rebase \
-                    https://${GIT_USER}:${GIT_TOKEN}@github.com/AlanJose2712/seclock.git main
+                        git pull --rebase \
+                            https://${GIT_USER}:${GIT_TOKEN}@github.com/AlanJose2712/seclock.git main
 
-                git push \
-                    https://${GIT_USER}:${GIT_TOKEN}@github.com/AlanJose2712/seclock.git HEAD:main
-            '''
-        }
-    }
-}
+                        git push \
+                            https://${GIT_USER}:${GIT_TOKEN}@github.com/AlanJose2712/seclock.git HEAD:main
+                    '''
+                }                      // closes withCredentials
+            }                          // closes steps
+        }                              // closes this stage
+    }                                  // closes stages
 
     post {
         success {
-            echo '=========================================='
-            echo ' SECLOCK CI/CD PIPELINE SUCCESSFUL'
-            echo '=========================================='
+            echo 'SECLOCK CI/CD PIPELINE SUCCESSFUL'
         }
-
         failure {
-            echo '=========================================='
-            echo ' SECLOCK CI/CD PIPELINE FAILED'
-            echo '=========================================='
+            echo 'SECLOCK CI/CD PIPELINE FAILED'
         }
-
         always {
             sh '''
                 docker image prune -f || true
             '''
         }
     }
-}
+}                                      // closes pipeline
