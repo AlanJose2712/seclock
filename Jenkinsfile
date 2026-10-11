@@ -121,22 +121,31 @@ pipeline {
         }
 
         stage('Commit and Push GitOps Changes') {
-            steps {
-                sh '''
-                    git config user.name "Jenkins"
-                    git config user.email "jenkins@localhost"
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'github',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_TOKEN'
+        )]) {
+            sh '''
+                git config user.name "Jenkins"
+                git config user.email "jenkins@localhost"
 
-                    git add k8s/deployment.yaml
+                git add k8s/deployment.yaml
 
-                    git commit \
-                        -m "Update Seclock image to ${GIT_COMMIT}" \
-                        || echo "No manifest changes to commit"
+                git commit \
+                    -m "Update Seclock image to ${GIT_COMMIT} [skip ci]" \
+                    || echo "No manifest changes to commit"
 
-                    git push origin HEAD:main
-                '''
-            }
+                git pull --rebase \
+                    https://${GIT_USER}:${GIT_TOKEN}@github.com/AlanJose2712/seclock.git main
+
+                git push \
+                    https://${GIT_USER}:${GIT_TOKEN}@github.com/AlanJose2712/seclock.git HEAD:main
+            '''
         }
     }
+}
 
     post {
         success {
